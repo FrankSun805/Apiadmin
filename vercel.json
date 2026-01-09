@@ -1,8 +1,16 @@
 {
     "rewrites": [
         {
-            "source": "/api/:match*",
-            "destination": "http://124.156.230.187:8080/:match*"
+            "source": "/openai-api/:path*",
+            "destination": "/api/proxy-openai?path=/:path*"
+        },
+        {
+            "source": "/api/:path*",
+            "destination": "/api/proxy-legacy?path=/:path*"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
