@@ -3,6 +3,7 @@ import { Layout } from './components/Layout'
 import UsageCheck from './components/UsageCheck'
 import ImageGenTest from './components/ImageGenTest'
 import ChatUsage from './components/ChatUsage'
+import Login from './components/Login'
 
 function App() {
   // Default keys provided by user

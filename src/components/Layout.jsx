@@ -18,8 +18,8 @@ export function Layout({ children, activeTab, onTabChange, token, onTokenChange 
     const NavContent = () => (
         <div className="flex flex-col h-full py-4">
             <div className="px-6 pb-6 pt-2">
-                <h2 className="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    AdminPanel
+                <h2 className="text-xl font-bold tracking-tight text-black">
+                    Sparkeo Console
                 </h2>
                 <p className="text-xs text-muted-foreground">API Management</p>
             </div>
@@ -88,7 +88,7 @@ export function Layout({ children, activeTab, onTabChange, token, onTokenChange 
                                 <NavContent />
                             </SheetContent>
                         </Sheet>
-                        <div className="md:hidden font-semibold">AdminPanel</div>
+                        <div className="md:hidden font-semibold">Sparkeo Console</div>
                     </div>
 
                     <div className="flex items-center gap-4 w-full max-w-md justify-end md:justify-end">
