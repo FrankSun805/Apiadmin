@@ -13,8 +13,14 @@ function App() {
   const [licenseToken, setLicenseToken] = useState(DEFAULT_LICENSE_KEY)
   const [chatToken, setChatToken] = useState(DEFAULT_CHAT_KEY)
   const [activeTab, setActiveTab] = useState('usage')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthChecking, setIsAuthChecking] = useState(true)
 
   useEffect(() => {
+    // Check auth status
+    const isAuth = localStorage.getItem('sparkeo_auth') === 'true'
+    setIsAuthenticated(isAuth)
+
     // Load persisted tokens or fallback to defaults
     const savedLicense = localStorage.getItem('license_token')
     const savedChat = localStorage.getItem('chat_token')
@@ -31,7 +37,14 @@ function App() {
     if (savedChat) {
       setChatToken(savedChat)
     }
+
+    setIsAuthChecking(false)
   }, [])
+
+  const handleLogin = () => {
+    setIsAuthenticated(true)
+    localStorage.setItem('sparkeo_auth', 'true')
+  }
 
   const handleTokenChange = (val) => {
     if (activeTab === 'chatusage') {
@@ -45,6 +58,12 @@ function App() {
 
   // Determine which token to show in the header input
   const activeToken = activeTab === 'chatusage' ? chatToken : activeTab === 'imggen' ? licenseToken : licenseToken
+
+  if (isAuthChecking) return null // Or a loading spinner
+
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />
+  }
 
   return (
     <Layout
