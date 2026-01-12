@@ -1,5 +1,5 @@
 export const config = {
-    runtime: 'nodejs', // Switch to Node.js runtime
+    runtime: 'nodejs',
 };
 
 export default async function handler(request, response) {
@@ -19,15 +19,8 @@ export default async function handler(request, response) {
     const targetUrl = `http://124.156.230.187:8080${path}${queryStr ? '?' + queryStr : ''}`;
 
     try {
-        // Determine the actual method (GET, POST, etc.)
         const method = request.method;
 
-        // Read body if necessary (for POST/PUT)
-        // Note: In Node.js serverless, 'request.body' might be parsed or stream.
-        // For simplicity with 'fetch', we'll rely on global fetch if available (Node 18+) 
-        // or use a polyfill if needed, but Vercel Node 18+ has fetch.
-
-        // Prepare options
         const options = {
             method: method,
             headers: {
@@ -43,7 +36,6 @@ export default async function handler(request, response) {
         const upstreamRes = await fetch(targetUrl, options);
         const data = await upstreamRes.text();
 
-        // Set debug header
         response.setHeader('X-Debug-Target-Url', targetUrl);
         response.setHeader('Access-Control-Allow-Origin', '*');
 
