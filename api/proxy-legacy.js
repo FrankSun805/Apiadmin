@@ -27,7 +27,6 @@ export default async function handler(request) {
         });
 
         const data = await response.text();
-        const data = await response.text();
         return new Response(data, {
             status: response.status,
             headers: {
