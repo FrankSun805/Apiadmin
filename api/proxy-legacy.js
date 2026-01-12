@@ -27,11 +27,13 @@ export default async function handler(request) {
         });
 
         const data = await response.text();
+        const data = await response.text();
         return new Response(data, {
             status: response.status,
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
+                'X-Debug-Target-Url': targetUrl // Debug header
             },
         });
     } catch (error) {
