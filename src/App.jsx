@@ -10,16 +10,7 @@ function App() {
 
   useEffect(() => {
     const savedToken = localStorage.getItem('user_token')
-    // If saved token exists and is NOT the old default, use it. Otherwise use the new default.
-    const oldDefault = 'sk-7C1E3G5I7K9M1O3Q5S7U9W1Y3A5C7E9G1I3'
-    if (savedToken && savedToken !== oldDefault) {
-      setToken(savedToken)
-    } else {
-      // Force update to new token if local storage has old default or is empty
-      const newToken = 'sk-rdQKORUaBAAUHoKSwYvSECSY9AVX9hwvLWvH1EUahR6fMdEY'
-      setToken(newToken)
-      localStorage.setItem('user_token', newToken)
-    }
+    if (savedToken) setToken(savedToken)
   }, [])
 
   const handleTokenChange = (val) => {
