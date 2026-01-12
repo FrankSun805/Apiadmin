@@ -1,13 +1,14 @@
 export const config = {
-    runtime: 'edge',
+    runtime: 'nodejs', // Switch to Node.js runtime
 };
 
-export default async function handler(request) {
-    const url = new URL(request.url);
+export default async function handler(request, response) {
+    // Parse query from the request URL
+    const url = new URL(request.url, `http://${request.headers.host}`);
     const path = url.searchParams.get('path');
 
     if (!path) {
-        return new Response('Path parameter missing', { status: 400 });
+        return response.status(400).send('Path parameter missing');
     }
 
     // Extract query params (excluding 'path')
@@ -18,24 +19,37 @@ export default async function handler(request) {
     const targetUrl = `http://124.156.230.187:8080${path}${queryStr ? '?' + queryStr : ''}`;
 
     try {
-        const response = await fetch(targetUrl, {
-            method: request.method,
-            headers: {
-                'Content-Type': 'application/json', // Basic headers
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            },
-        });
+        // Determine the actual method (GET, POST, etc.)
+        const method = request.method;
 
-        const data = await response.text();
-        return new Response(data, {
-            status: response.status,
+        // Read body if necessary (for POST/PUT)
+        // Note: In Node.js serverless, 'request.body' might be parsed or stream.
+        // For simplicity with 'fetch', we'll rely on global fetch if available (Node 18+) 
+        // or use a polyfill if needed, but Vercel Node 18+ has fetch.
+
+        // Prepare options
+        const options = {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'X-Debug-Target-Url': targetUrl // Debug header
-            },
-        });
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        };
+
+        if (method !== 'GET' && method !== 'HEAD' && request.body) {
+            options.body = JSON.stringify(request.body);
+        }
+
+        const upstreamRes = await fetch(targetUrl, options);
+        const data = await upstreamRes.text();
+
+        // Set debug header
+        response.setHeader('X-Debug-Target-Url', targetUrl);
+        response.setHeader('Access-Control-Allow-Origin', '*');
+
+        return response.status(upstreamRes.status).send(data);
+
     } catch (error) {
-        return new Response(`Proxy Error: ${error.message}`, { status: 500 });
+        return response.status(500).send(`Proxy Error: ${error.message}`);
     }
 }
