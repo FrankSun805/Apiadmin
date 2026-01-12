@@ -5,39 +5,59 @@ import ImageGenTest from './components/ImageGenTest'
 import ChatUsage from './components/ChatUsage'
 
 function App() {
-  const [token, setToken] = useState('sk-7C1E3G5I7K9M1O3Q5S7U9W1Y3A5C7E9G1I3')
+  // Default keys provided by user
+  const DEFAULT_LICENSE_KEY = 'sk-7C1E3G5I7K9M1O3Q5S7U9W1Y3A5C7E9G1I3'
+  const DEFAULT_CHAT_KEY = 'sk-rdQKORUaBAAUHoKSwYvSECSY9AVX9hwvLWvH1EUahR6fMdEY'
+
+  const [licenseToken, setLicenseToken] = useState(DEFAULT_LICENSE_KEY)
+  const [chatToken, setChatToken] = useState(DEFAULT_CHAT_KEY)
   const [activeTab, setActiveTab] = useState('usage')
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('user_token')
-    // If saved token exists, use it. But we want to prefer the hardcoded one for this session if it's the old invalid one.
-    // Actually, simplify: just respect saved token if present, otherwise default.
-    // To FORCE the user's requested token, we can just set it:
-    if (savedToken !== 'sk-7C1E3G5I7K9M1O3Q5S7U9W1Y3A5C7E9G1I3') {
-      const newToken = 'sk-7C1E3G5I7K9M1O3Q5S7U9W1Y3A5C7E9G1I3'
-      setToken(newToken)
-      localStorage.setItem('user_token', newToken)
+    // Load persisted tokens or fallback to defaults
+    const savedLicense = localStorage.getItem('license_token')
+    const savedChat = localStorage.getItem('chat_token')
+
+    // Migration: check old 'user_token' if specific keys missing
+    const oldGenericToken = localStorage.getItem('user_token')
+
+    if (savedLicense) {
+      setLicenseToken(savedLicense)
+    } else if (oldGenericToken && oldGenericToken.startsWith('sk-7C')) {
+      setLicenseToken(oldGenericToken)
+    }
+
+    if (savedChat) {
+      setChatToken(savedChat)
     }
   }, [])
 
   const handleTokenChange = (val) => {
-    setToken(val)
-    localStorage.setItem('user_token', val)
+    if (activeTab === 'chatusage') {
+      setChatToken(val)
+      localStorage.setItem('chat_token', val)
+    } else {
+      setLicenseToken(val)
+      localStorage.setItem('license_token', val)
+    }
   }
+
+  // Determine which token to show in the header input
+  const activeToken = activeTab === 'chatusage' ? chatToken : activeTab === 'imggen' ? licenseToken : licenseToken
 
   return (
     <Layout
       activeTab={activeTab}
       onTabChange={setActiveTab}
-      token={token}
+      token={activeToken}
       onTokenChange={handleTokenChange}
     >
       {activeTab === 'usage' ? (
-        <UsageCheck token={token} />
+        <UsageCheck token={licenseToken} />
       ) : activeTab === 'imggen' ? (
-        <ImageGenTest token={token} />
+        <ImageGenTest token={licenseToken} />
       ) : (
-        <ChatUsage token={token} />
+        <ChatUsage token={chatToken} />
       )}
     </Layout>
   )
